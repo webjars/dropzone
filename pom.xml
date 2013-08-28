@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
+  <groupId>us.levk</groupId>
+  <artifactId>dropzone</artifactId>
+  <version>3.7.1</version>
+  <packaging>jar</packaging>
+
+  <name>dropzone</name>
+
+  <developers>
+    <developer>
+      <id>levk</id>
+      <name>Lev Kuznetsov</name>
+      <email>lev.v.kuznetsov@gmail.com</email>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/enyo/dropzone</url>
+    <connection>scm:git:https://github.com/enyo/dropzone.git</connection>
+    <developerConnection>scm:git:https://github.com/enyo/dropzone.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <upstream.version>3.7.1</upstream.version>
+    <upstream.commit.id>ff1d2dbdde0812a8c758a59f8cb4dcd616f61dad</upstream.commit.id>
+
+    <antlib.dir>${project.build.directory}/ant/lib</antlib.dir>
+    <checkout.dir>${project.build.directory}/checkout</checkout.dir>
+    <source.dir>${checkout.dir}/downloads</source.dir>
+
+    <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstream.version}</destDir>
+  </properties>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir dir="${antlib.dir}" />
+                <get
+                  src="http://repo1.maven.org/maven2/org/eclipse/jgit/org.eclipse.jgit/3.0.0.201306101825-r/org.eclipse.jgit-3.0.0.201306101825-r.jar"
+                  dest="${antlib.dir}" />
+                <get
+                  src="http://repo1.maven.org/maven2/org/eclipse/jgit/org.eclipse.jgit.ant/3.0.0.201306101825-r/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar"
+                  dest="${antlib.dir}" />
+                <get
+                  src="http://repo1.maven.org/maven2/com/jcraft/jsch/0.1.50/jsch-0.1.50.jar"
+                  dest="${antlib.dir}" />
+                <get
+                  src="https://raw.github.com/lev-kuznetsov/m2/master/releases/us/levk/jgit-ant-tasks/0.0.1/jgit-ant-tasks-0.0.1.jar"
+                  dest="${antlib.dir}" />
+
+                <taskdef resource="org/eclipse/jgit/ant/ant-tasks.properties">
+                  <classpath>
+                    <pathelement
+                      location="${antlib.dir}/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar" />
+                    <pathelement
+                      location="${antlib.dir}/org.eclipse.jgit-3.0.0.201306101825-r.jar" />
+                    <pathelement location="${antlib.dir}/jsch-0.1.50.jar" />
+                  </classpath>
+                </taskdef>
+                <taskdef resource="us/levk/ant/tasks/git-ant-tasks.properties">
+                  <classpath>
+                    <pathelement
+                      location="${antlib.dir}/jgit-ant-tasks-0.0.1.jar" />
+                    <pathelement
+                      location="${antlib.dir}/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar" />
+                    <pathelement
+                      location="${antlib.dir}/org.eclipse.jgit-3.0.0.201306101825-r.jar" />
+                  </classpath>
+                </taskdef>
+
+                <mkdir dir="${checkout.dir}" />
+                <git-clone uri="https://github.com/enyo/dropzone.git"
+                  dest="${checkout.dir}" />
+                <git-reset repository="${checkout.dir}"
+                  reference="${upstream.commit.id}" mode="hard" />
+
+                <move todir="${destDir}">
+                  <fileset dir="${source.dir}" />
+                </move>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.3.2</version>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <targetPath>${destDir}</targetPath>
+      </resource>
+    </resources>
+  </build>
+</project>
