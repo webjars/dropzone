@@ -51,6 +51,19 @@
     <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstream.version}</destDir>
   </properties>
 
+  <distributionManagement>
+
+    <repository>
+      <id>repo</id>
+      <url>https://github.com/lev-kuznetsov/m2/releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshot-repo</id>
+      <url>https://github.com/lev-kuznetsov/m2/snapshots</url>
+    </snapshotRepository>
+
+  </distributionManagement>
+
   <build>
     <plugins>
 
