@@ -9,9 +9,9 @@
     <version>7</version>
   </parent>
 
-  <groupId>us.levk</groupId>
+  <groupId>org.webjars</groupId>
   <artifactId>dropzone</artifactId>
-  <version>3.7.1</version>
+  <version>3.7.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>dropzone</name>
@@ -33,110 +33,67 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/enyo/dropzone</url>
-    <connection>scm:git:https://github.com/enyo/dropzone.git</connection>
-    <developerConnection>scm:git:https://github.com/enyo/dropzone.git</developerConnection>
+    <url>https://github.com/webjars/dropzone</url>
+    <connection>scm:git:https://github.com/webjars/dropzone.git</connection>
+    <developerConnection>scm:git:https://github.com/webjars/dropzone.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <upstream.version>3.7.1</upstream.version>
-    <upstream.commit.id>ff1d2dbdde0812a8c758a59f8cb4dcd616f61dad</upstream.commit.id>
-
-    <antlib.dir>${project.build.directory}/ant/lib</antlib.dir>
-    <checkout.dir>${project.build.directory}/checkout</checkout.dir>
-    <source.dir>${checkout.dir}/downloads</source.dir>
-
+    <upstream.url>https://github.com/enyo/dropzone/archive</upstream.url>
     <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstream.version}</destDir>
   </properties>
 
-  <distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0-beta-4</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>download-single</goal>
+                        </goals>
+                        <configuration>
+                            <url>${upstream.url}</url>
+                            <fromFile>v${upstream.version}.zip</fromFile>
+                            <toFile>${project.build.directory}/${project.artifactId}.zip</toFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-    <repository>
-      <id>repo</id>
-      <url>https://github.com/lev-kuznetsov/m2/releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>snapshot-repo</id>
-      <url>https://github.com/lev-kuznetsov/m2/snapshots</url>
-    </snapshotRepository>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <echo message="unzip archive" />
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}" />
+                                <echo message="moving resources" />
+                                <move todir="${destDir}">
+                                    <fileset dir="${project.build.directory}/dropzone-${upstream.version}/downloads" />
+                                </move>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
-  </distributionManagement>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version>
+            </plugin>
+        </plugins>
+    </build>
 
-  <build>
-    <plugins>
-
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <mkdir dir="${antlib.dir}" />
-                <get
-                  src="http://repo1.maven.org/maven2/org/eclipse/jgit/org.eclipse.jgit/3.0.0.201306101825-r/org.eclipse.jgit-3.0.0.201306101825-r.jar"
-                  dest="${antlib.dir}" />
-                <get
-                  src="http://repo1.maven.org/maven2/org/eclipse/jgit/org.eclipse.jgit.ant/3.0.0.201306101825-r/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar"
-                  dest="${antlib.dir}" />
-                <get
-                  src="http://repo1.maven.org/maven2/com/jcraft/jsch/0.1.50/jsch-0.1.50.jar"
-                  dest="${antlib.dir}" />
-                <get
-                  src="https://raw.github.com/lev-kuznetsov/m2/master/releases/us/levk/jgit-ant-tasks/0.0.1/jgit-ant-tasks-0.0.1.jar"
-                  dest="${antlib.dir}" />
-
-                <taskdef resource="org/eclipse/jgit/ant/ant-tasks.properties">
-                  <classpath>
-                    <pathelement
-                      location="${antlib.dir}/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar" />
-                    <pathelement
-                      location="${antlib.dir}/org.eclipse.jgit-3.0.0.201306101825-r.jar" />
-                    <pathelement location="${antlib.dir}/jsch-0.1.50.jar" />
-                  </classpath>
-                </taskdef>
-                <taskdef resource="us/levk/ant/tasks/git-ant-tasks.properties">
-                  <classpath>
-                    <pathelement
-                      location="${antlib.dir}/jgit-ant-tasks-0.0.1.jar" />
-                    <pathelement
-                      location="${antlib.dir}/org.eclipse.jgit.ant-3.0.0.201306101825-r.jar" />
-                    <pathelement
-                      location="${antlib.dir}/org.eclipse.jgit-3.0.0.201306101825-r.jar" />
-                  </classpath>
-                </taskdef>
-
-                <mkdir dir="${checkout.dir}" />
-                <git-clone uri="https://github.com/enyo/dropzone.git"
-                  dest="${checkout.dir}" />
-                <git-reset repository="${checkout.dir}"
-                  reference="${upstream.commit.id}" mode="hard" />
-
-                <move todir="${destDir}">
-                  <fileset dir="${source.dir}" />
-                </move>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.3.2</version>
-      </plugin>
-    </plugins>
-    <resources>
-      <resource>
-        <directory>${project.basedir}/src/main/resources</directory>
-        <targetPath>${destDir}</targetPath>
-      </resource>
-    </resources>
-  </build>
 </project>
