@@ -45,12 +45,25 @@
     <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${upstream.version}</destDir>
     <requirejs>
         {
-            "paths": {
-                "dropzone": "dropzone"
+          "paths": {
+              "dropzone": "dropzone-amd-module"
+          },
+          "shims": {
+            "dropzone": {
+              "deps": ["jquery"]
             }
+          }
         }
     </requirejs>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jquery</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+  </dependencies>
 
     <build>
         <plugins>
