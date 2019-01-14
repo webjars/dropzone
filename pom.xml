@@ -10,7 +10,7 @@
 
   <groupId>org.webjars</groupId>
   <artifactId>dropzone</artifactId>
-  <version>5.2.1-SNAPSHOT</version>
+  <version>5.5.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>dropzone</name>
@@ -41,7 +41,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- look in: https://gitlab.com/meno/dropzone/pipelines?scope=finished -->
-    <upstream.job>35362371</upstream.job>
+    <upstream.job>79974233</upstream.job>
     <upstream.url>https://gitlab.com/meno/dropzone/-/jobs/${upstream.job}/artifacts/download</upstream.url>
     <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
     <requirejs>
